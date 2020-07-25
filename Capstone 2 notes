@@ -1,0 +1,12 @@
+Split data into training and test
+
+use all features 
+
+what is the meaning of the t-test in this context
+
+descriptive statistics
+Pandas profiling
+data distribution: normality, phi, mean, box plots by category
+choose variable for coefficient matrix
+multivariate regression: goal of test r-square
+normalize variables prior to regression
