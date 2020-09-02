@@ -1,0 +1,158 @@
+Sci-Kit Learn
+
+REGRESSION METRICS:
+
+#Uses the df of X values (before NP-array conversion); not formatted
+print(list(zip(dfcoolhi.iloc[:, :-1].columns.tolist(),reg.coef_)))
+#For lightly formatted list, insert zip statement to code found at https://stackoverflow.com/questions/48053979/print-2-lists-side-by-side
+print("\n".join("{} {}".format(x, y) for x, y in
+                zip(dfcoolhi.iloc[:, :-1].columns.tolist(),reg.coef_)))
+
+
+(https://benalexkeen.com/linear-regression-in-python-using-scikit-learn/)
+for idx, col_name in enumerate(X_train.columns):
+    print("The coefficient for {} is {}".format(col_name, regression_model.coef_[0][idx]))
+
+
+(https://stackoverflow.com/questions/26319259/how-to-get-a-regression-summary-in-python-scikit-like-r-does)
+import sklearn.metrics as metrics
+def regression_results(y_true, y_pred):
+
+    # Regression metrics
+    explained_variance=metrics.explained_variance_score(y_true, y_pred)
+    mean_absolute_error=metrics.mean_absolute_error(y_true, y_pred) 
+    mse=metrics.mean_squared_error(y_true, y_pred) 
+    mean_squared_log_error=metrics.mean_squared_log_error(y_true, y_pred)
+    median_absolute_error=metrics.median_absolute_error(y_true, y_pred)
+    r2=metrics.r2_score(y_true, y_pred)
+
+    print('explained_variance: ', round(explained_variance,4))    
+    print('mean_squared_log_error: ', round(mean_squared_log_error,4))
+    print('r2: ', round(r2,4))
+    print('MAE: ', round(mean_absolute_error,4))
+    print('MSE: ', round(mse,4))
+    print('RMSE: ', round(np.sqrt(mse),4))
+	
+	
+
+(https://scikit-learn.org/stable/auto_examples/linear_model/plot_ols.html#sphx-glr-auto-examples-linear-model-plot-ols-py):
+from sklearn.metrics import mean_squared_error, r2_score
+
+# The coefficients
+print('Coefficients: \n', regr.coef_)
+# The mean squared error
+print('Mean squared error: %.2f'
+      % mean_squared_error(diabetes_y_test, diabetes_y_pred))
+# The coefficient of determination: 1 is perfect prediction
+print('Coefficient of determination: %.2f'
+      % r2_score(diabetes_y_test, diabetes_y_pred))
+
+
+
+(https://medium.com/@tmango/comparing-stats-software-and-my-favorite-python-packages-for-linear-regression-78dd799f791a)
+from sklearn import linear_model
+from sklearn.cross_validation import cross_val_score
+
+regr = linear_model.LinearRegression()
+MSEs = cross_val_score(regr, X, y=Y, scoring='neg_mean_squared_error', cv=10)
+RMSE = (MSEs*-1)**0.5
+print(RMSE)
+
+
+
+POST-REGRESSION VISUALIZATION:
+
+(https://scikit-learn.org/stable/auto_examples/linear_model/plot_ols.html#sphx-glr-auto-examples-linear-model-plot-ols-py)
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn import datasets, linear_model
+
+# Plot outputs THIS RETURNS ERROR -- ValueError: x and y must be the same size
+plt.scatter(diabetes_X_test, diabetes_y_test,  color='black')
+plt.plot(diabetes_X_test, diabetes_y_pred, color='blue', linewidth=3)
+
+plt.xticks(())
+plt.yticks(())
+
+plt.show()
+
+
+(https://medium.com/@tmango/comparing-stats-software-and-my-favorite-python-packages-for-linear-regression-78dd799f791a)
+# Visualizing a single test from 10 fold cross validation
+#Uses Seaborn and Sklearn
+#Prep and perform regression
+predictions = <Model predictions from X_test>
+
+#Visualize train and test
+import seaborn as sns
+
+sns.set(style='ticks')
+sns.regplot(Y_test, y=predictions, scatter_kws={'alpha':0.05});
+plt.title('Relevant Title')
+plt.ylabel('Test Data')
+plt.xlabel('Trained Regression')
+
+
+ATTRIBUTES FOR RFECV:
+
+n_features_ : int
+The number of selected features with cross-validation.
+
+support_ : array of shape [n_features]
+The mask of selected features.
+
+ranking_ : array of shape [n_features]
+The feature ranking, such that ranking_[i] corresponds to the ranking position of the i-th feature. Selected (i.e., estimated best) features are assigned rank 1.
+print("Variable:   Feature Rank:")
+print("\n".join("       {}   {}".format(x, y) for x, y in zip(dfcoolhi.iloc[:, :-1].columns.tolist(),rfecv.ranking_)))
+
+grid_scores_ : array of shape [n_subsets_of_features]
+The cross-validation scores such that grid_scores_[i] corresponds to the CV score of the i-th subset of features.
+
+estimator_ : object
+The external estimator fit on the reduced dataset.
+
+
+RFECV EXAMPLE WITH GRAPH OUTPUT
+This example uses SVC; substitute with linear_model.LinearRegression()
+
+(https://scikit-learn.org/stable/auto_examples/feature_selection/plot_rfe_with_cross_validation.html#sphx-glr-auto-examples-feature-selection-plot-rfe-with-cross-validation-py)
+"""
+===================================================
+Recursive feature elimination with cross-validation
+===================================================
+
+A recursive feature elimination example with automatic tuning of the
+number of features selected with cross-validation.
+"""
+print(__doc__)
+
+import matplotlib.pyplot as plt
+from sklearn.svm import SVC
+from sklearn.model_selection import StratifiedKFold
+from sklearn.feature_selection import RFECV
+from sklearn.datasets import make_classification
+
+# Build a classification task using 3 informative features
+X, y = make_classification(n_samples=1000, n_features=25, n_informative=3,
+                           n_redundant=2, n_repeated=0, n_classes=8,
+                           n_clusters_per_class=1, random_state=0)
+
+# Create the RFE object and compute a cross-validated score.
+svc = SVC(kernel="linear")
+# The "accuracy" scoring is proportional to the number of correct
+# classifications
+rfecv = RFECV(estimator=svc, step=1, cv=StratifiedKFold(2),
+              scoring='accuracy')
+rfecv.fit(X, y)
+
+print("Optimal number of features : %d" % rfecv.n_features_)
+
+# Plot number of features VS. cross-validation scores
+plt.figure()
+plt.xlabel("Number of features selected")
+plt.ylabel("Cross validation score (nb of correct classifications)")
+plt.plot(range(1, len(rfecv.grid_scores_) + 1), rfecv.grid_scores_)
+plt.show()
+
+
